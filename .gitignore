@@ -1,0 +1,34 @@
+# Dataset (baixar separadamente do TCIA — ~81k imagens)
+data/raw/
+data/processed/
+
+# Modelos treinados e saídas
+outputs/
+*.pth
+*.pt
+*.onnx
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDE / OS
+.vscode/
+.idea/
+*.swp
+Thumbs.db
+Desktop.ini
+
+# Credenciais
+.env
+.env.*
+
+# Cache PyTorch
+.cache/
