@@ -1,0 +1,24 @@
+{
+  "acuracia": 0.9546473959631199,
+  "acuracia_balanceada": 0.9580386635222149,
+  "precisao": 0.9878034748590496,
+  "recall": 0.9512465373961219,
+  "f1": 0.9691804018965906,
+  "especificidade": 0.9648307896483079,
+  "verdadeiros_negativos": 2908,
+  "falsos_positivos": 106,
+  "falsos_negativos": 440,
+  "verdadeiros_positivos": 8585,
+  "auc_roc": 0.9923269984761786,
+  "arquitetura": "resnet18",
+  "estrategia_divisao": "paciente",
+  "tamanho_imagem": 224,
+  "tamanho_lote": 32,
+  "taxa_aprendizado": 0.0001,
+  "semente": 42,
+  "aumento_dados": true,
+  "pesos_classe": [
+    1.9785228967666626,
+    0.6690876483917236
+  ]
+}

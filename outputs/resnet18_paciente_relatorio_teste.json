@@ -1,0 +1,304 @@
+{
+  "checkpoint": "outputs\\resnet18_paciente_melhor.pth",
+  "conjunto": "teste",
+  "estrategia_divisao": "paciente",
+  "limiar": 0.5,
+  "metricas_celula": {
+    "acuracia": 0.9546473959631199,
+    "acuracia_balanceada": 0.9580386635222149,
+    "precisao": 0.9878034748590496,
+    "recall": 0.9512465373961219,
+    "f1": 0.9691804018965906,
+    "especificidade": 0.9648307896483079,
+    "verdadeiros_negativos": 2908,
+    "falsos_positivos": 106,
+    "falsos_negativos": 440,
+    "verdadeiros_positivos": 8585,
+    "auc_roc": 0.9923270903833817
+  },
+  "metricas_paciente": {
+    "acuracia": 1.0,
+    "acuracia_balanceada": 1.0,
+    "precisao": 1.0,
+    "recall": 1.0,
+    "f1": 1.0,
+    "especificidade": 1.0,
+    "verdadeiros_negativos": 10,
+    "falsos_positivos": 0,
+    "falsos_negativos": 0,
+    "verdadeiros_positivos": 20,
+    "auc_roc": 1.0
+  },
+  "pacientes": {
+    "AIH": {
+      "rotulo_verdadeiro": 0,
+      "classe_verdadeira": "Saudaveis",
+      "probabilidade_media": 0.02716962741611186,
+      "predito": 0,
+      "classe_predita": "Saudaveis",
+      "num_celulas": 196,
+      "fracao_celulas_leucemia": 0.015306122448979591
+    },
+    "BHR": {
+      "rotulo_verdadeiro": 1,
+      "classe_verdadeira": "Leucemia",
+      "probabilidade_media": 0.9337865337738996,
+      "predito": 1,
+      "classe_predita": "Leucemia",
+      "num_celulas": 488,
+      "fracao_celulas_leucemia": 0.9405737704918032
+    },
+    "BJK": {
+      "rotulo_verdadeiro": 1,
+      "classe_verdadeira": "Leucemia",
+      "probabilidade_media": 0.9726098143405854,
+      "predito": 1,
+      "classe_predita": "Leucemia",
+      "num_celulas": 498,
+      "fracao_celulas_leucemia": 0.9819277108433735
+    },
+    "BOE": {
+      "rotulo_verdadeiro": 1,
+      "classe_verdadeira": "Leucemia",
+      "probabilidade_media": 0.9893491203586261,
+      "predito": 1,
+      "classe_predita": "Leucemia",
+      "num_celulas": 300,
+      "fracao_celulas_leucemia": 0.9966666666666667
+    },
+    "BTB": {
+      "rotulo_verdadeiro": 1,
+      "classe_verdadeira": "Leucemia",
+      "probabilidade_media": 0.9640158187799357,
+      "predito": 1,
+      "classe_predita": "Leucemia",
+      "num_celulas": 296,
+      "fracao_celulas_leucemia": 0.9695945945945946
+    },
+    "CDA": {
+      "rotulo_verdadeiro": 0,
+      "classe_verdadeira": "Saudaveis",
+      "probabilidade_media": 0.05460105483325422,
+      "predito": 0,
+      "classe_predita": "Saudaveis",
+      "num_celulas": 355,
+      "fracao_celulas_leucemia": 0.030985915492957747
+    },
+    "CIQ": {
+      "rotulo_verdadeiro": 0,
+      "classe_verdadeira": "Saudaveis",
+      "probabilidade_media": 0.09740415225739056,
+      "predito": 0,
+      "classe_predita": "Saudaveis",
+      "num_celulas": 131,
+      "fracao_celulas_leucemia": 0.06870229007633588
+    },
+    "DFT": {
+      "rotulo_verdadeiro": 0,
+      "classe_verdadeira": "Saudaveis",
+      "probabilidade_media": 0.02764020468633657,
+      "predito": 0,
+      "classe_predita": "Saudaveis",
+      "num_celulas": 339,
+      "fracao_celulas_leucemia": 0.011799410029498525
+    },
+    "FAQ": {
+      "rotulo_verdadeiro": 0,
+      "classe_verdadeira": "Saudaveis",
+      "probabilidade_media": 0.04073949449530792,
+      "predito": 0,
+      "classe_predita": "Saudaveis",
+      "num_celulas": 273,
+      "fracao_celulas_leucemia": 0.018315018315018316
+    },
+    "FDW": {
+      "rotulo_verdadeiro": 0,
+      "classe_verdadeira": "Saudaveis",
+      "probabilidade_media": 0.04933466563471179,
+      "predito": 0,
+      "classe_predita": "Saudaveis",
+      "num_celulas": 241,
+      "fracao_celulas_leucemia": 0.03319502074688797
+    },
+    "FQY": {
+      "rotulo_verdadeiro": 1,
+      "classe_verdadeira": "Leucemia",
+      "probabilidade_media": 0.9599891809737215,
+      "predito": 1,
+      "classe_predita": "Leucemia",
+      "num_celulas": 495,
+      "fracao_celulas_leucemia": 0.9676767676767677
+    },
+    "GJQ": {
+      "rotulo_verdadeiro": 0,
+      "classe_verdadeira": "Saudaveis",
+      "probabilidade_media": 0.030040211720885834,
+      "predito": 0,
+      "classe_predita": "Saudaveis",
+      "num_celulas": 495,
+      "fracao_celulas_leucemia": 0.020202020202020204
+    },
+    "GOR": {
+      "rotulo_verdadeiro": 1,
+      "classe_verdadeira": "Leucemia",
+      "probabilidade_media": 0.9888185641880126,
+      "predito": 1,
+      "classe_predita": "Leucemia",
+      "num_celulas": 497,
+      "fracao_celulas_leucemia": 0.9919517102615694
+    },
+    "GUE": {
+      "rotulo_verdadeiro": 1,
+      "classe_verdadeira": "Leucemia",
+      "probabilidade_media": 0.8717835492684276,
+      "predito": 1,
+      "classe_predita": "Leucemia",
+      "num_celulas": 385,
+      "fracao_celulas_leucemia": 0.8883116883116883
+    },
+    "ILZ": {
+      "rotulo_verdadeiro": 1,
+      "classe_verdadeira": "Leucemia",
+      "probabilidade_media": 0.9992756108402966,
+      "predito": 1,
+      "classe_predita": "Leucemia",
+      "num_celulas": 497,
+      "fracao_celulas_leucemia": 1.0
+    },
+    "ISW": {
+      "rotulo_verdadeiro": 1,
+      "classe_verdadeira": "Leucemia",
+      "probabilidade_media": 0.995280304961359,
+      "predito": 1,
+      "classe_predita": "Leucemia",
+      "num_celulas": 494,
+      "fracao_celulas_leucemia": 0.9979757085020243
+    },
+    "JFC": {
+      "rotulo_verdadeiro": 1,
+      "classe_verdadeira": "Leucemia",
+      "probabilidade_media": 0.9663697492984694,
+      "predito": 1,
+      "classe_predita": "Leucemia",
+      "num_celulas": 496,
+      "fracao_celulas_leucemia": 0.9737903225806451
+    },
+    "MFH": {
+      "rotulo_verdadeiro": 1,
+      "classe_verdadeira": "Leucemia",
+      "probabilidade_media": 0.9753284332785576,
+      "predito": 1,
+      "classe_predita": "Leucemia",
+      "num_celulas": 496,
+      "fracao_celulas_leucemia": 0.9818548387096774
+    },
+    "OVP": {
+      "rotulo_verdadeiro": 0,
+      "classe_verdadeira": "Saudaveis",
+      "probabilidade_media": 0.08271085463092187,
+      "predito": 0,
+      "classe_predita": "Saudaveis",
+      "num_celulas": 219,
+      "fracao_celulas_leucemia": 0.0593607305936073
+    },
+    "RFV": {
+      "rotulo_verdadeiro": 1,
+      "classe_verdadeira": "Leucemia",
+      "probabilidade_media": 0.9954130171412924,
+      "predito": 1,
+      "classe_predita": "Leucemia",
+      "num_celulas": 498,
+      "fracao_celulas_leucemia": 0.9979919678714859
+    },
+    "RJQ": {
+      "rotulo_verdadeiro": 1,
+      "classe_verdadeira": "Leucemia",
+      "probabilidade_media": 0.9837665892041781,
+      "predito": 1,
+      "classe_predita": "Leucemia",
+      "num_celulas": 476,
+      "fracao_celulas_leucemia": 0.9873949579831933
+    },
+    "SUN": {
+      "rotulo_verdadeiro": 1,
+      "classe_verdadeira": "Leucemia",
+      "probabilidade_media": 0.9846111896614997,
+      "predito": 1,
+      "classe_predita": "Leucemia",
+      "num_celulas": 468,
+      "fracao_celulas_leucemia": 0.9871794871794872
+    },
+    "SYY": {
+      "rotulo_verdadeiro": 1,
+      "classe_verdadeira": "Leucemia",
+      "probabilidade_media": 0.9902759177239279,
+      "predito": 1,
+      "classe_predita": "Leucemia",
+      "num_celulas": 487,
+      "fracao_celulas_leucemia": 0.997946611909651
+    },
+    "UNX": {
+      "rotulo_verdadeiro": 0,
+      "classe_verdadeira": "Saudaveis",
+      "probabilidade_media": 0.007856822115122222,
+      "predito": 0,
+      "classe_predita": "Saudaveis",
+      "num_celulas": 477,
+      "fracao_celulas_leucemia": 0.006289308176100629
+    },
+    "UXN": {
+      "rotulo_verdadeiro": 1,
+      "classe_verdadeira": "Leucemia",
+      "probabilidade_media": 0.644342054680508,
+      "predito": 1,
+      "classe_predita": "Leucemia",
+      "num_celulas": 497,
+      "fracao_celulas_leucemia": 0.6438631790744467
+    },
+    "XFF": {
+      "rotulo_verdadeiro": 1,
+      "classe_verdadeira": "Leucemia",
+      "probabilidade_media": 0.9888071746304479,
+      "predito": 1,
+      "classe_predita": "Leucemia",
+      "num_celulas": 489,
+      "fracao_celulas_leucemia": 0.9918200408997955
+    },
+    "XOB": {
+      "rotulo_verdadeiro": 1,
+      "classe_verdadeira": "Leucemia",
+      "probabilidade_media": 0.9549939222985281,
+      "predito": 1,
+      "classe_predita": "Leucemia",
+      "num_celulas": 265,
+      "fracao_celulas_leucemia": 0.9773584905660377
+    },
+    "XTK": {
+      "rotulo_verdadeiro": 1,
+      "classe_verdadeira": "Leucemia",
+      "probabilidade_media": 0.9735940724001027,
+      "predito": 1,
+      "classe_predita": "Leucemia",
+      "num_celulas": 409,
+      "fracao_celulas_leucemia": 0.9755501222493888
+    },
+    "YWQ": {
+      "rotulo_verdadeiro": 0,
+      "classe_verdadeira": "Saudaveis",
+      "probabilidade_media": 0.18189365740763147,
+      "predito": 0,
+      "classe_predita": "Saudaveis",
+      "num_celulas": 288,
+      "fracao_celulas_leucemia": 0.1388888888888889
+    },
+    "ZLW": {
+      "rotulo_verdadeiro": 1,
+      "classe_verdadeira": "Leucemia",
+      "probabilidade_media": 0.7962362811983628,
+      "predito": 1,
+      "classe_predita": "Leucemia",
+      "num_celulas": 494,
+      "fracao_celulas_leucemia": 0.8076923076923077
+    }
+  }
+}

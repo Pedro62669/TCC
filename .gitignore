@@ -2,11 +2,14 @@
 data/raw/
 data/processed/
 
-# Modelos treinados e saídas
-outputs/
+# Checkpoints: pesados (~45 MB cada) e reproduzíveis a partir do código + semente.
 *.pth
 *.pt
 *.onnx
+
+# O resto de outputs/ é versionado de propósito: as métricas, figuras e tabelas
+# são os resultados que vão para a monografia e não se reproduzem de graça —
+# cada treino leva ~35 min na RTX 2070 SUPER.
 
 # Python
 __pycache__/

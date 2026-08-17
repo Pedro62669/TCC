@@ -1,0 +1,24 @@
+{
+  "acuracia": 0.969629812033161,
+  "acuracia_balanceada": 0.9664953855511752,
+  "precisao": 0.986292209963223,
+  "recall": 0.9728481917115532,
+  "f1": 0.9795240730492529,
+  "especificidade": 0.9601425793907972,
+  "verdadeiros_negativos": 2963,
+  "falsos_positivos": 123,
+  "falsos_negativos": 247,
+  "verdadeiros_positivos": 8850,
+  "auc_roc": 0.9954902234297577,
+  "arquitetura": "resnet18",
+  "estrategia_divisao": "aleatorio",
+  "tamanho_imagem": 224,
+  "tamanho_lote": 32,
+  "taxa_aprendizado": 0.0001,
+  "semente": 42,
+  "aumento_dados": true,
+  "pesos_classe": [
+    2.0044074058532715,
+    0.6661784052848816
+  ]
+}
