@@ -1,0 +1,28 @@
+# Ambiente do TCC — versões fixadas a partir da instalação que produziu os
+# resultados em outputs/ (Python 3.12, Windows 11, RTX 2070 SUPER).
+#
+#   pip install -r requirements.txt
+#
+# torch e torchvision estão fixados na build CUDA 11.8, que é a que roda na
+# GPU. Sem o índice abaixo o pip instala a build de CPU e o treino fica
+# inviável (~35 min por experimento na GPU contra várias horas na CPU).
+--extra-index-url https://download.pytorch.org/whl/cu118
+
+torch==2.7.1+cu118
+torchvision==0.22.1+cu118
+
+# Métricas (acurácia balanceada, F1, AUC-ROC) em src/utils/metricas.py.
+scikit-learn==1.9.0
+
+numpy==2.4.4
+pandas==3.0.2
+pillow==12.2.0
+matplotlib==3.10.8
+tqdm==4.67.3
+
+# Para rodar os notebooks.
+ipykernel==7.2.0
+
+# Testes: `python -m pytest tests/`
+# (o executável pytest.exe não fica no PATH nesta instalação do Python).
+pytest==9.1.1

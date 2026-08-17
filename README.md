@@ -1,77 +1,94 @@
 # TCC — Classificação de Leucemia Mieloide Aguda (AML) com Deep Learning
 
-Projeto de Trabalho de Conclusão de Curso (TCC) para detecção de **Leucemia Mieloide Aguda (AML)** a partir de imagens de citomorfologia de células sanguíneas, utilizando **Visão Computacional** e **PyTorch**.
+Detecção de **Leucemia Mieloide Aguda** a partir de imagens de citomorfologia de células sanguíneas, usando visão computacional e PyTorch.
 
-O objetivo é treinar um modelo de deep learning capaz de distinguir imagens de células **saudáveis** de células com **leucemia**, usando o dataset público **AML-Cytomorphology_MLL_Helmholtz**.
+O modelo classifica células individuais como **saudáveis** ou **leucêmicas** e agrega essas predições num diagnóstico por **paciente**, que é o que interessa clinicamente. O dataset é o **AML-Cytomorphology_MLL_Helmholtz**: 81.214 imagens de 189 pacientes.
 
 ---
 
-## Visão geral do pipeline
+## Resultados
 
-O desenvolvimento segue um fluxo em etapas, implementado em notebooks Jupyter:
+ResNet18 com transfer learning, divisão por paciente, 15 épocas (melhor na 12ª por early stopping).
 
-```
-Dataset TCIA (raw)
-       │
-       ▼
-[01] Análise exploratória ──► entender desequilíbrio de classes
-       │
-       ▼
-[03] Organizar dataset ─────► binário: Saudaveis / Leucemia
-       │
-       ▼
-[04] Pipeline PyTorch ──────► transformações, splits, DataLoaders
-       │
-       ▼
-[05] Treinamento (ResNet18) ► transfer learning na GPU
-       │
-       ▼
-   outputs/ (modelos salvos — pendente)
-```
+### Nível célula — conjunto de teste (12.039 imagens)
 
-> **Nota:** O notebook `02` não existe no repositório. Provavelmente correspondia à etapa de download e extração do dataset a partir do TCIA.
+| Métrica | Valor |
+|---|---:|
+| Acurácia | 0,9546 |
+| Acurácia balanceada | 0,9580 |
+| Precisão (leucemia) | 0,9878 |
+| Recall / sensibilidade | 0,9512 |
+| Especificidade | 0,9648 |
+| F1-score | 0,9692 |
+| AUC-ROC | 0,9923 |
+
+Matriz de confusão: VP = 8.585 · VN = 2.908 · FP = 106 · FN = 440
+
+### Nível paciente — 30 pacientes de teste
+
+Agregando as centenas de células de cada paciente numa decisão única, **todas as métricas chegam a 1,0**: os 30 pacientes (10 saudáveis, 20 com leucemia) foram classificados corretamente, sem nenhum erro.
+
+O ganho não é acidental. Um paciente traz de 99 a 500 células; erros isolados em células individuais são diluídos pela média das probabilidades, e o sinal de doença — presente na maioria das células — prevalece.
+
+> Ressalva honesta para a defesa: 100% sobre **30 pacientes** é um resultado forte, mas a amostra é pequena. Um intervalo de confiança exigiria validação cruzada por paciente (ver [Próximos passos](#próximos-passos)).
+
+---
+
+## O achado metodológico: vazamento de dados
+
+Este é o ponto central do trabalho, e não estava previsto no plano inicial.
+
+Cada paciente contribui com centenas de células **da mesma lâmina** — mesma coloração, mesmo microscópio, mesmo dia. A abordagem intuitiva (`ImageFolder` + `random_split`, dividindo por imagem) espalha células de um mesmo paciente entre treino e teste. O modelo então pode acertar por **reconhecer o paciente**, não a doença. Isso é *data leakage*, e infla as métricas.
+
+Para medir o efeito, os dois cenários foram treinados com hiperparâmetros idênticos, mudando **apenas** a estratégia de divisão:
+
+| Métrica | Divisão aleatória | Divisão por paciente | Diferença |
+|---|---:|---:|---:|
+| Acurácia | 0,9696 | 0,9546 | −0,0150 |
+| Acurácia balanceada | 0,9665 | 0,9580 | −0,0085 |
+| Precisão (leucemia) | 0,9863 | 0,9878 | +0,0015 |
+| Recall / sensibilidade | 0,9728 | 0,9512 | −0,0216 |
+| Especificidade | 0,9601 | 0,9648 | +0,0047 |
+| F1-score | 0,9795 | 0,9692 | −0,0103 |
+| AUC-ROC | 0,9955 | 0,9923 | −0,0032 |
+
+A divisão aleatória parece melhor, mas o ganho é ilusório: vem de reconhecer pacientes já vistos. **Os números reportados neste trabalho são os da divisão por paciente**, mesmo sendo mais baixos.
+
+Reproduzir: `python -m src.comparar` — gera `outputs/comparacao_divisoes.md` e a figura correspondente.
 
 ---
 
 ## Dataset
 
-### Fonte
-
 - **Nome:** AML-Cytomorphology_MLL_Helmholtz
 - **Origem:** Munich Leukemia Laboratory (MLL), via [The Cancer Imaging Archive (TCIA)](https://www.cancerimagingarchive.net/collection/aml-cytomorphology_mll_helmholtz/)
 - **DOI:** [10.7937/6PPE-4020](https://doi.org/10.7937/6PPE-4020)
-- **Total:** 81.214 imagens de células individuais (`.tif`), 189 pacientes, anos 2009–2020
-- **Microscopia:** 40x, imersão em óleo, 144×144 pixels por célula
+- **Conteúdo:** 81.214 imagens `.tif` de células individuais, 189 pacientes, 2009–2020
+- **Microscopia:** 40x com imersão em óleo, 144×144 px por célula
 
 ### Estrutura original (`data/raw/`)
 
-O dataset original possui 5 categorias genéticas (WHO 2022):
+| Pasta | Descrição | Pacientes | Imagens |
+|---|---|---:|---:|
+| `control/` | Doadores saudáveis | 60 | 20.305 |
+| `CBFB_MYH11/` | AML com fusão CBFB::MYH11 | 37 | 17.212 |
+| `NPM1/` | AML com mutação NPM1 | 36 | 17.710 |
+| `RUNX1_RUNX1T1/` | AML com fusão RUNX1::RUNX1T1 | 32 | 14.403 |
+| `PML_RARA/` | APL com fusão PML::RARA | 24 | 11.584 |
+| **Total** | | **189** | **81.214** |
 
-| Pasta | Descrição |
-|-------|-----------|
-| `control/` | Doadores saudáveis (controles) |
-| `PML_RARA/` | APL com fusão PML::RARA |
-| `NPM1/` | AML com mutação NPM1 |
-| `CBFB_MYH11/` | AML com fusão CBFB::MYH11 |
-| `RUNX1_RUNX1T1/` | AML com fusão RUNX1::RUNX1T1 |
+### Dataset binário (`data/processed/dataset_binario/`)
 
-Cada pasta contém subpastas por paciente (ex.: `AEC/`, `AQK/`) com dezenas a centenas de imagens `.tif`.
+O notebook `03` agrupa as 4 entidades de AML numa única classe:
 
-### Dataset processado (`data/processed/dataset_binario/`)
+| Classe | Imagens | Proporção |
+|---|---:|---:|
+| `Saudaveis/` | 20.305 | 25,0% |
+| `Leucemia/` | 60.909 | 75,0% |
 
-O notebook `03_organizar_dataset.ipynb` agrupa as 4 subpastas de AML em uma única classe binária:
+Os arquivos recebem o prefixo do paciente (`AQK_image_0.tif`) — é desse prefixo que a divisão por paciente extrai o identificador.
 
-| Classe | Origem | Imagens |
-|--------|--------|---------|
-| `Saudaveis/` | `control/` | 20.305 |
-| `Leucemia/` | `RUNX1_RUNX1T1`, `CBFB_MYH11`, `PML_RARA`, `NPM1` | 60.909 |
-| **Total** | | **81.214** |
-
-Arquivos renomeados com prefixo do paciente para evitar colisões (ex.: `AEC_image_0.tif`).
-
-### Desequilíbrio de classes
-
-Aproximadamente **25% saudáveis** vs **75% leucemia**. Esse desequilíbrio é explorado visualmente no notebook `01` e deve ser considerado na avaliação do modelo (métricas além da acurácia, como recall, F1 e matriz de confusão).
+**O desbalanceamento 25/75 importa:** um modelo que respondesse "leucemia" para tudo já teria 75% de acurácia. Por isso o treino usa pesos de classe inversamente proporcionais à frequência (`[1,98, 0,67]`) e o melhor checkpoint é escolhido pela **acurácia balanceada**, não pela acurácia simples.
 
 ---
 
@@ -80,192 +97,140 @@ Aproximadamente **25% saudáveis** vs **75% leucemia**. Esse desequilíbrio é e
 ```
 tcc-leucemia-ia/
 ├── data/
-│   ├── raw/                          # Dataset original (5 categorias)
-│   │   ├── control/
-│   │   ├── PML_RARA/
-│   │   ├── NPM1/
-│   │   ├── CBFB_MYH11/
-│   │   └── RUNX1_RUNX1T1/
-│   └── processed/
-│       └── dataset_binario/          # Dataset binário para treino
-│           ├── Saudaveis/
-│           └── Leucemia/
+│   ├── raw/                        # dataset original do TCIA (5 categorias)
+│   └── processed/dataset_binario/  # Saudaveis/ e Leucemia/
 ├── notebooks/
-│   ├── 01_analise_dados.ipynb        # Análise exploratória
-│   ├── 03_organizar_dataset.ipynb    # Preparação do dataset binário
-│   ├── 04_pipeline_pytorch.ipynb     # Pipeline de dados PyTorch
-│   └── 05_treinamento_modelo.ipynb   # Treinamento com ResNet18
+│   ├── 01_analise_dados.ipynb      # validação do ambiente
+│   ├── 03_organizar_dataset.ipynb  # monta o dataset binário
+│   ├── 04_pipeline_pytorch.ipynb   # abordagem inicial (com vazamento — ver nota no notebook)
+│   └── 05_treinamento_modelo.ipynb # treino interativo sobre os módulos de src/
 ├── src/
-│   ├── models/                       # (vazio — reservado para código modular)
-│   └── utils/                        # (vazio — reservado para utilitários)
-├── outputs/                          # (vazio — destino de modelos treinados)
-└── README.md
+│   ├── config.py                   # caminhos, classes, hiperparâmetros, semente
+│   ├── dados/dataset.py            # divisão por paciente, transformações, DataLoaders
+│   ├── modelos/resnet.py           # ResNet18/34/50 com a camada final adaptada
+│   ├── treino.py                   # loop de treino (CLI)
+│   ├── avaliar.py                  # avaliação + agregação por paciente (CLI)
+│   ├── comparar.py                 # comparação entre estratégias de divisão (CLI)
+│   └── utils/
+│       ├── metricas.py             # métricas e gráficos
+│       └── semente.py              # reprodutibilidade
+├── tests/                          # testes da divisão por paciente
+├── outputs/                        # métricas, figuras e checkpoints
+└── requirements.txt
 ```
 
----
-
-## Notebooks — detalhamento
-
-### 01 — Análise de dados (`01_analise_dados.ipynb`)
-
-**Objetivo:** Validar o ambiente Python e visualizar o desafio de desequilíbrio de classes.
-
-- Instala `matplotlib`, `pandas`, `numpy`
-- Gera gráfico de pizza simulando a proporção saudáveis vs AML
-- Confirma que o ambiente gráfico funciona no Cursor/Jupyter
-
-### 03 — Organizar dataset (`03_organizar_dataset.ipynb`)
-
-**Objetivo:** Converter o dataset multi-classe em classificação binária.
-
-- Percorre recursivamente `data/raw/`
-- Classifica imagens (`.png`, `.jpg`, `.jpeg`, `.tiff`, `.tif`) por pasta de origem
-- Copia para `data/processed/dataset_binario/Saudaveis/` ou `Leucemia/`
-- Resultado: **81.214 imagens** copiadas em ~2 minutos
-
-### 04 — Pipeline PyTorch (`04_pipeline_pytorch.ipynb`)
-
-**Objetivo:** Montar o pipeline de dados para alimentar a GPU.
-
-| Parâmetro | Valor |
-|-----------|-------|
-| Tamanho da imagem | 224 × 224 px |
-| Normalização | ImageNet (`mean=[0.485, 0.456, 0.406]`, `std=[0.229, 0.224, 0.225]`) |
-| Batch size | 32 |
-| Split treino/val/teste | 70% / 15% / 15% |
-| Seed | 42 (reprodutibilidade) |
-| DataLoaders | `train_loader`, `val_loader`, `test_loader` |
-
-Com 81.214 imagens e batch de 32, o treino gera ~**1.777 lotes** por época.
-
-### 05 — Treinamento do modelo (`05_treinamento_modelo.ipynb`)
-
-**Objetivo:** Treinar uma **ResNet18** com transfer learning na GPU.
-
-**Configuração detectada na execução:**
-- GPU: NVIDIA GeForce RTX 2070 SUPER (8,59 GB VRAM)
-- Modelo base: ResNet18 pré-treinada (ImageNet), baixada automaticamente
-- Framework: PyTorch + torchvision
-
-**Status atual:** O notebook está **incompleto**. O código-fonte foi truncado na linha `transformacoes = transforms.` e a execução falhou com:
-
-```
-NameError: name 'train_loader' is not defined
-```
-
-Para concluir o treinamento, é necessário completar o notebook incorporando o pipeline de dados do notebook `04` (criação dos DataLoaders) antes do loop de treino.
-
----
-
-## Pré-requisitos
-
-### Hardware
-
-- **Recomendado:** GPU NVIDIA com CUDA (testado com RTX 2070 SUPER, 8 GB VRAM)
-- **Alternativa:** CPU (funciona, porém treinamento muito mais lento)
-
-### Software
-
-- Python 3.12+
-- Jupyter Notebook ou JupyterLab
-- CUDA (se usar GPU)
-
-### Dependências Python
-
-Instaladas inline nos notebooks via `%pip install`. Pacotes utilizados:
-
-```
-torch
-torchvision
-matplotlib
-pandas
-numpy
-tqdm
-pillow
-```
-
-> **Sugestão:** Criar um `requirements.txt` para facilitar a reprodução do ambiente.
+Os módulos vivem em `src/` e os notebooks apenas os chamam. A lógica existe num lugar só, então o que roda no notebook e o que roda pela linha de comando são a mesma coisa.
 
 ---
 
 ## Como executar
 
-### 1. Obter o dataset
+### 1. Dataset
 
-Baixe o **AML-Cytomorphology_MLL_Helmholtz** pelo [TCIA](https://www.cancerimagingarchive.net/collection/aml-cytomorphology_mll_helmholtz/) (requer registro). Extraia o conteúdo em:
+Baixe o **AML-Cytomorphology_MLL_Helmholtz** pelo [TCIA](https://www.cancerimagingarchive.net/collection/aml-cytomorphology_mll_helmholtz/) (requer registro) e extraia em `data/raw/`, preservando as 5 subpastas. Depois rode `notebooks/03_organizar_dataset.ipynb` para gerar o dataset binário (~2 min).
 
-```
-data/raw/
-├── control/
-├── PML_RARA/
-├── NPM1/
-├── CBFB_MYH11/
-└── RUNX1_RUNX1T1/
-```
-
-### 2. Instalar dependências
+### 2. Dependências
 
 ```bash
-pip install torch torchvision matplotlib pandas numpy tqdm pillow jupyter
+pip install -r requirements.txt
 ```
 
-Para GPU NVIDIA, instale o PyTorch com suporte CUDA conforme [pytorch.org](https://pytorch.org/get-started/locally/).
+O `requirements.txt` fixa a build CUDA 11.8 do PyTorch. Sem ela o pip instala a versão de CPU e o treino passa de ~35 min para várias horas.
 
-### 3. Executar os notebooks em ordem
+### 3. Treinar
 
-Abra a pasta `notebooks/` no Jupyter e execute na sequência:
+```bash
+# Treino padrão: divisão por paciente, 15 épocas
+python -m src.treino
 
-1. `01_analise_dados.ipynb` — validação do ambiente
-2. `03_organizar_dataset.ipynb` — gera o dataset binário (~2 min)
-3. `04_pipeline_pytorch.ipynb` — valida o pipeline de dados
-4. `05_treinamento_modelo.ipynb` — treina o modelo (requer conclusão do código)
+# Verificação rápida do pipeline (~1 min, não serve para reportar resultado)
+python -m src.treino --epocas 2 --max-amostras 800 --nome smoke_test
+
+# Reproduzir o experimento de vazamento
+python -m src.treino --estrategia aleatorio --nome comparacao_leakage
+```
+
+Principais opções: `--epocas --lote --lr --arquitetura {resnet18,resnet34,resnet50} --estrategia {paciente,aleatorio} --dropout --congelar-backbone --paciencia --workers --semente --nome --max-amostras`. Use `--help` para a lista completa.
+
+### 4. Avaliar
+
+```bash
+python -m src.avaliar --checkpoint outputs/resnet18_paciente_melhor.pth
+```
+
+Gera métricas por célula **e** por paciente, matrizes de confusão, curva ROC e a lista de pacientes classificados errado.
+
+### 5. Comparar as estratégias
+
+```bash
+python -m src.comparar
+```
+
+### 6. Testes
+
+```bash
+python -m pytest tests/
+```
+
+Os testes verificam o contrato que sustenta a metodologia: nenhum paciente aparece em mais de um conjunto. Rodam em segundos com dados sintéticos, sem precisar do dataset em disco.
 
 ---
 
-## Arquitetura do modelo (planejada)
+## Detalhes de implementação
 
-```
-Entrada: imagem 224×224×3 (tensor normalizado)
-    │
-    ▼
-ResNet18 (pré-treinada ImageNet)
-    │
-    ▼
-Camada fully-connected adaptada (2 classes)
-    │
-    ▼
-Saída: Saudável (0) ou Leucemia (1)
-```
+### Divisão por paciente
 
-Abordagem de **transfer learning**: reutiliza pesos aprendidos no ImageNet e ajusta a camada final para a tarefa binária de classificação.
+Os 189 pacientes são distribuídos entre treino/validação/teste (70/15/15), e **todas** as imagens de um paciente acompanham ele. A divisão é estratificada por classe, então os três conjuntos preservam a proporção 25/75. Como os pacientes têm de 99 a 500 imagens, as proporções finais de imagens ficam próximas — mas não exatamente iguais — às pedidas: é o preço correto por dividir no nível certo.
 
----
+### Aumento de dados
 
-## Histórico de desenvolvimento
+Espelhamento horizontal e vertical, rotação de até 20°, e jitter de brilho/contraste/saturação/matiz. Rotações e espelhamentos são seguros porque uma célula não tem orientação canônica — sua posição na lâmina é arbitrária. O jitter de cor simula variação de coloração e iluminação entre lâminas, que é a maior fonte de diferença entre pacientes. Validação e teste recebem apenas redimensionamento e normalização.
 
-| Etapa | Status | Descrição |
-|-------|--------|-----------|
-| Setup do ambiente Python | Concluído | Bibliotecas instaladas e validadas no Cursor |
-| Download do dataset TCIA | Concluído | 81.214 imagens em `data/raw/` |
-| Análise exploratória | Concluído | Visualização do desequilíbrio de classes |
-| Preparação dataset binário | Concluído | 20.305 saudáveis + 60.909 leucemia |
-| Pipeline PyTorch | Concluído | DataLoaders com split 70/15/15 |
-| Treinamento ResNet18 | **Pendente** | Notebook incompleto, sem modelo salvo |
-| Modularização (`src/`) | **Pendente** | Pastas criadas, sem código |
-| Avaliação e métricas | **Pendente** | Matriz de confusão, F1, recall |
-| Exportação do modelo | **Pendente** | Pasta `outputs/` vazia |
+### Treinamento
+
+| Parâmetro | Valor |
+|---|---|
+| Arquitetura | ResNet18 pré-treinada (ImageNet), camada `fc` adaptada para 2 classes |
+| Otimizador | AdamW, lr 1e-4, weight decay 1e-4 |
+| Agendador | `ReduceLROnPlateau` (fator 0,5, paciência 2) |
+| Perda | `CrossEntropyLoss` com pesos de classe |
+| Precisão mista | AMP ativada (`torch.amp`) |
+| Lote / imagem | 32 / 224×224 |
+| Early stopping | paciência de 5 épocas |
+| Critério do melhor | acurácia balanceada de validação |
+| Semente | 42 |
+
+### Agregação por paciente
+
+`src/avaliar.py` calcula a probabilidade média de leucemia entre todas as células de um paciente e compara com o limiar (padrão 0,5). O relatório traz, por paciente, a probabilidade média, o número de células e a fração de células classificadas como leucêmicas.
 
 ---
 
-## Próximos passos sugeridos
+## Ambiente de referência
 
-1. **Completar o notebook `05`** — integrar o pipeline do notebook `04` e finalizar o loop de treino com ResNet18
-2. **Salvar checkpoints** em `outputs/` (melhor modelo por acurácia de validação)
-3. **Avaliar no conjunto de teste** — matriz de confusão, precision, recall, F1
-4. **Tratar desequilíbio** — pesos de classe, oversampling ou métricas adequadas
-5. **Modularizar código** — mover lógica para `src/models/` e `src/utils/`
-6. **Criar `requirements.txt`** — fixar versões das dependências
-7. **Inicializar git** — controle de versão (dataset excluído via `.gitignore`)
+- Windows 11 Pro, Python 3.12
+- GPU NVIDIA RTX 2070 SUPER (8 GB VRAM), CUDA 11.8
+- Tempo de treino: ~35 min por experimento de 15 épocas
+
+Funciona em CPU, mas o treino fica ordens de grandeza mais lento.
+
+> No Windows, o `num_workers > 0` faz o PyTorch criar processos por *spawn*, e cada um reimporta o torch inteiro. Dentro do Jupyter isso costuma travar ou estourar o arquivo de paginação, então o notebook 05 usa `num_workers = 0`; pela linha de comando, `--workers 4` funciona bem.
+
+---
+
+## Próximos passos
+
+1. **Validação cruzada k-fold por paciente** — o resultado de 100% no nível paciente vem de 30 pacientes; k-fold daria intervalos de confiança.
+2. **Repetir com várias sementes** — todos os resultados atuais vêm de `seed=42`; sem repetições não dá para separar efeito real de ruído, o que é especialmente relevante na comparação de vazamento.
+3. **Grad-CAM** — mapas de atenção para mostrar que o modelo olha morfologia celular e não artefato de coloração.
+4. **Comparar arquiteturas** — `criar_modelo()` já suporta resnet34 e resnet50.
+5. **Classificação multiclasse** — as 4 entidades genéticas estão preservadas em `data/raw/`.
+
+---
+
+## Versionamento
+
+`data/` e os checkpoints `.pth` ficam fora do git: o dataset vem do TCIA e os modelos (~45 MB cada) são reproduzíveis a partir do código e da semente. Já as métricas, figuras e tabelas de `outputs/` **são versionadas** — custam ~35 min de GPU cada e são os resultados que vão para a monografia.
 
 ---
 
@@ -275,8 +240,6 @@ Abordagem de **transfer learning**: reutiliza pesos aprendidos no ImageNet e aju
 - [PyTorch — Transfer Learning Tutorial](https://pytorch.org/tutorials/beginner/transfer_learning_tutorial.html)
 - [torchvision — ResNet](https://pytorch.org/vision/stable/models/resnet.html)
 
----
-
 ## Licença e uso
 
-Este projeto é acadêmico (TCC). O dataset AML-Cytomorphology possui termos de uso próprios do TCIA — consulte a [página oficial](https://www.cancerimagingarchive.net/collection/aml-cytomorphology_mll_helmholtz/) antes de redistribuir os dados.
+Projeto acadêmico (TCC). O dataset AML-Cytomorphology possui termos de uso próprios do TCIA — consulte a [página oficial](https://www.cancerimagingarchive.net/collection/aml-cytomorphology_mll_helmholtz/) antes de redistribuir os dados.
